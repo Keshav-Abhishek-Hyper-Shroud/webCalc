@@ -12,10 +12,10 @@
             margin: auto;
             display: grid;
             width: 600px;
-            height: 390px;
+            height: auto;
             border-radius: 10px;
             padding: 5px;
-            grid-template-areas: 'titlebar titlebar' 'normalrateEntry weekendrateEntry' 'fromdate todate' 'calculateAmount calculateAmount' 'messageScreen messageScreen';
+            grid-template-areas: 'titlebar titlebar' 'normalrateEntry weekendrateEntry' 'fromdate todate' 'calculateAmount calculateAmount' 'messageScreen messageScreen' 'alldates alldates';
         }
 
         #titlebar{
@@ -96,6 +96,15 @@
             text-align: center;
             margin-top: 10px;
         }
+
+        #alldates{
+            font-family: Baloo, 'Baloo Bhai 2', cursive;
+            grid-area: alldates;
+            border: none;
+            font-size: 20px;
+            text-align: center;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +116,7 @@
         <input type="date" id="todate" date-formart="dd-mm-yyyy">
         <button id="calculateAmount">Calculate</button>
         <label id="messageScreen"></label>
+        <label id="alldates">Result will flash soon...</label>
     </div>
     <script>
         var mainrecord=new Array();
@@ -126,7 +136,7 @@
         }
 
         document.getElementById("calculateAmount").addEventListener('mousedown',()=>{
-            document.getElementById("calculateAmount").style.border='2px solid black';
+            document.getElementById("calculateAmount").style.boxShadow='5px 5px black';
             
             var fromdatevalue=document.getElementById('fromdate').value;
             var todatevalue=document.getElementById('todate').value;
@@ -151,59 +161,72 @@
             var todatems=new Date(`${todatevaluemonth}-${todatevalueday}-${todatevalueyear}`);
             todatems=parseInt(todatems.getTime());
 
-            var instance_date='';
+            if(fromdatems<todatems){
 
-            var i=0;
-            while(instance_date!=`${todatevalueday}-${todatevaluemonth}-${todatevalueyear}`){
-                var currms=new Date(fromdatems+i*24*3600*1000);
-                k=currms.toDateString().split(' ')[2]+'-'+currms.toDateString().split(' ')[1]+'-'+currms.toDateString().split(' ')[3].split('-')
-                k=k.split('-')
-                k[1]=monthdata[k[1]]
-                mainrecord.push(k.join('-'));
-                instance_date=k.join('-');
-                i+=1;
+                var instance_date='';
+
+                var i=0;
+                while(instance_date!=`${todatevalueday}-${todatevaluemonth}-${todatevalueyear}`){
+                    var currms=new Date(fromdatems+i*24*3600*1000);
+                    k=currms.toDateString().split(' ')[2]+'-'+currms.toDateString().split(' ')[1]+'-'+currms.toDateString().split(' ')[3].split('-')
+                    k=k.split('-')
+                    k[1]=monthdata[k[1]]
+                    mainrecord.push(k.join('-'));
+                    instance_date=k.join('-');
+                    i+=1;
+                };
+
+                for (let tareekh = 0; tareekh < mainrecord.length; tareekh++) {
+                    var instancedate = mainrecord[tareekh];
+                    var instancedateis = mainrecord[tareekh].split('-').reverse().join('-');
+                    instancedateis=new Date(instancedateis);
+                    // console.log(instancedate,instancedateis.toDateString().split(' ')[0]);
+                    mainrecord[tareekh]=`${instancedate},${instancedateis.toDateString().split(' ')[0]}`;
+                };
+
+                var weekends=[];
+                var nonweekends=[];
+
+                mainrecord.forEach(x => {
+                    if(x.split(',')[1]=='Sat' | x.split(',')[1]=='Sun'){
+                        weekends.push(x.split(',')[0]);
+                    }
+                    else
+                    {
+                        nonweekends.push(x.split(',')[0]);
+                    }
+                });
+
+                // console.log(`Weekends count ${weekends.length}\nNonweekends count ${nonweekends.length}`);
+
+                var normalrate=parseFloat(document.getElementById('normalrateEntry').value);
+                var weekendrate=parseFloat(document.getElementById('weekendrateEntry').value);
+
+                var money=weekends.length*weekendrate+nonweekends.length*normalrate;
+                
+                var message=`Pay ₹${money} to the Newspaper Boy.`;
+
+                document.getElementById('messageScreen').innerText=message;
+                // money=0;
+                // weekends=[];
+                // nonweekends=[];
+
+                var alldatesString='';
+
+                mainrecord.forEach(z => {
+                    var element=z.split(',');
+                    alldatesString+=element[0]+' '+element[1]+', ';
+                });
+
+                document.getElementById('alldates').innerText=alldatesString;
             };
-
-            for (let tareekh = 0; tareekh < mainrecord.length; tareekh++) {
-                var instancedate = mainrecord[tareekh];
-                var instancedateis = mainrecord[tareekh].split('-').reverse().join('-');
-                instancedateis=new Date(instancedateis);
-                // console.log(instancedate,instancedateis.toDateString().split(' ')[0]);
-                mainrecord[tareekh]=`${instancedate},${instancedateis.toDateString().split(' ')[0]}`;
-            };
-
-            var weekends=[];
-            var nonweekends=[];
-
-            mainrecord.forEach(x => {
-                if(x.split(',')[1]=='Sat' | x.split(',')[1]=='Sun'){
-                    weekends.push(x.split(',')[0]);
-                }
-                else
-                {
-                    nonweekends.push(x.split(',')[0]);
-                }
-            });
-
-            // console.log(`Weekends count ${weekends.length}\nNonweekends count ${nonweekends.length}`);
-
-            var normalrate=parseFloat(document.getElementById('normalrateEntry').value);
-            var weekendrate=parseFloat(document.getElementById('weekendrateEntry').value);
-
-            var money=weekends.length*weekendrate+nonweekends.length*normalrate;
-            
-            var message=`Pay ₹${money} to the Newspaper Boy.`;
-
-            document.getElementById('messageScreen').innerText=message;
-            money=0;
 
         });
 
         document.getElementById("calculateAmount").addEventListener('mouseup',()=>{
             document.getElementById("calculateAmount").style.border='none';
+            document.getElementById("calculateAmount").disabled=true;
         });
     </script>
 </body>
 </html>
-
-<!-- 8,22 -->
