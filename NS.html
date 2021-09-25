@@ -207,9 +207,6 @@
                 var message=`Pay ₹${money} to the Newspaper Boy.`;
 
                 document.getElementById('messageScreen').innerText=message;
-                // money=0;
-                // weekends=[];
-                // nonweekends=[];
 
                 var alldatesString='';
 
@@ -219,6 +216,7 @@
                 });
 
                 document.getElementById('alldates').innerText=alldatesString;
+                window.print();
             };
 
         });
