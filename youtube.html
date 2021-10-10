@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youtube.com</title>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@800&display=swap');
+
+        embed{
+            display: none;
+        }
+
+        #linkEntry{
+            width: 75vw;
+            font-family: Baloo, 'Baloo Bhai 2', cursive;
+            font-size: 25px;
+            border: 2px solid black;
+            text-align: center;
+        }
+
+        #watch{
+            width: 20vw;
+            font-family: Baloo, 'Baloo Bhai 2', cursive;
+            font-size: 25px;
+            border: 2px solid red;
+            text-align: center;
+            cursor: pointer;
+            background-color: brown;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <embed src="" id="mainVideo"></embed>
+    <input type="text" id="linkEntry" placeholder="Enter the watching link of youtube video.">
+    <button id="watch">Click to Watch</button>
+
+    <script>
+
+        document.getElementById('watch').addEventListener('mousedown',()=>{
+            var inivideoLink=document.getElementById('linkEntry').value;
+            var videoLink=document.getElementById('linkEntry').value;
+
+            videoLink=videoLink.replace('watch?v=','embed/');
+
+            if(inivideoLink==videoLink){
+                videoLink=videoLink.split('/');
+                videoLink=`https://www.youtube.com/embed/${videoLink[3]}`;
+            }
+
+            document.getElementById('mainVideo').style.display='inherit';
+            document.getElementById('mainVideo').setAttribute('src',`${videoLink}`);
+
+            document.getElementById('mainVideo').style.width='95vw';
+            document.getElementById('mainVideo').style.height='80vh';
+
+            document.getElementById('mainVideo').style.marginBottom='10px';
+
+            document.getElementById('linkEntry').value='';
+        });
+
+    </script>
+</body>
+</html>
