@@ -11,11 +11,11 @@
         .mainframe{
             margin: auto;
             display: grid;
-            width: 600px;
+            width: fit-content;
             height: auto;
             border-radius: 10px;
             padding: 5px;
-            grid-template-areas: 'titlebar titlebar' 'normalrateEntry weekendrateEntry' 'fromdate todate' 'calculateAmount calculateAmount' 'messageScreen messageScreen' 'alldates alldates';
+            grid-template-areas: 'titlebar titlebar' 'normalrateEntry weekendrateEntry' 'fromdate todate' 'calculateAmount calculateAmount' 'messageScreen messageScreen' 'alldates alldates' 'days days' 'printPage printPage';
         }
 
         #titlebar{
@@ -107,9 +107,39 @@
         }
 
         .days{
+            grid-area: days;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .days-button{
+            color: white;
+            background: linear-gradient(to right,red,black);
+            font-size: 20px;
+            border: 0;
+            outline: 0;
+            border-radius: 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+        }
+
+        #printPage{
+            grid-area: printPage;
+            margin-top: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            font-size: 20px;
+            border: 0;
+            outline: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            color: black;
+            background: linear-gradient(to right,black, grey, black);
+            display: none;
         }
     </style>
 </head>
@@ -123,8 +153,28 @@
         <button id="calculateAmount">Calculate</button>
         <label id="messageScreen"></label>
         <label id="alldates">Result will flash soon...</label>
+
+        <div class="days" id="days_area">
+            <button id="monday" class="days-button">Monday</button>
+            <button id="tuesday" class="days-button">Tuesday</button>
+            <button id="wednesday" class="days-button">Wednesday</button>
+            <button id="thursday" class="days-button">Thursday</button>
+            <button id="friday" class="days-button">Friday</button>
+            <button id="saturday" class="days-button">Saturday</button>
+            <button id="sunday" class="days-button">Sunday</button>
+        </div>
+
+        <button id="printPage">P R I N T</button>
     </div>
     <script>
+        var moreChargedDaysList = ['Sat','Sun'];
+        var bunchOfButtons = document.getElementsByClassName('days-button')
+        for (const i of bunchOfButtons) {
+            i.addEventListener('mousedown',()=>{
+                moreChargedDaysList.push(i.innerText[0]+i.innerText[1]+i.innerText[2]);
+                alert(`${i.innerHTML} added as weekends or more extra charged days.`);
+            });
+        };
         var mainrecord=new Array();
         var monthdata={
             'Jan':'01',
@@ -139,7 +189,7 @@
             'Oct':'10',
             'Nov':'11',
             'Dec':'12'
-        }
+        };
 
         document.getElementById("calculateAmount").addEventListener('mousedown',()=>{
             document.getElementById("calculateAmount").style.boxShadow='5px 5px black';
@@ -186,24 +236,41 @@
                     var instancedate = mainrecord[tareekh];
                     var instancedateis = mainrecord[tareekh].split('-').reverse().join('-');
                     instancedateis=new Date(instancedateis);
-                    // console.log(instancedate,instancedateis.toDateString().split(' ')[0]);
                     mainrecord[tareekh]=`${instancedate},${instancedateis.toDateString().split(' ')[0]}`;
                 };
 
                 var weekends=[];
                 var nonweekends=[];
 
+                var moreChargedDaysSets = new Set(moreChargedDaysList);
+
                 mainrecord.forEach(x => {
-                    if(x.split(',')[1]=='Sat' | x.split(',')[1]=='Sun'){
-                        weekends.push(x.split(',')[0]);
-                    }
-                    else
-                    {
-                        nonweekends.push(x.split(',')[0]);
-                    }
+                    moreChargedDaysSets.forEach(instance => {
+                        if(x.split(',')[1]==instance){
+                            weekends.push(x.split(',')[0]);
+                        }
+                        else
+                        {
+                            nonweekends.push(x.split(',')[0]);
+                        };
+                    });
                 });
 
-                // console.log(`Weekends count ${weekends.length}\nNonweekends count ${nonweekends.length}`);
+                console.table(weekends);
+
+                var nonweekendsSets = new Set(nonweekends);
+
+                nonweekends=[];
+
+                nonweekendsSets.forEach(element => {
+                    nonweekends.push(element);
+                });
+
+                
+                weekends.forEach(element => {
+                    var removeableindex = nonweekends.indexOf(element);
+                    nonweekends.pop(removeableindex);
+                });
 
                 var normalrate=parseFloat(document.getElementById('normalrateEntry').value);
                 var weekendrate=parseFloat(document.getElementById('weekendrateEntry').value);
@@ -222,9 +289,20 @@
                 });
 
                 document.getElementById('alldates').innerText=alldatesString;
-                window.print();
+                document.getElementById('alldates').style.display='none';
+                document.getElementById('printPage').style.display='block';
             };
 
+        });
+
+        document.getElementById('printPage').addEventListener('mousedown',()=>{
+            document.getElementById('alldates').style.display='block';
+            document.getElementById('calculateAmount').style.display='none';
+            document.getElementById('days_area').style.display='none';
+            document.getElementById('printPage').style.display='none';
+            setTimeout(() => {
+                window.print()
+            }, 1000);
         });
 
         document.getElementById("calculateAmount").addEventListener('mouseup',()=>{
